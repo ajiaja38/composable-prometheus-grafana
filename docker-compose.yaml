@@ -10,6 +10,23 @@ services:
     networks:
       - monitoring
 
+  node_exporter:
+    container_name: node_exporter
+    image: prom/node-exporter
+    ports:
+      - 9100:9100
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - "--path.procfs=/host/proc"
+      - "--path.rootfs=/rootfs"
+      - "--path.sysfs=/host/sys"
+      - "--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)"
+    networks:
+      - monitoring
+
   grafana:
     container_name: grafana
     image: grafana/grafana
@@ -17,6 +34,8 @@ services:
       - 3001:3000
     environment:
       - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - ./grafana.db:/var/lib/grafana/grafana.db
     networks:
       - monitoring
 
